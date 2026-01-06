@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2024-2025 Isalab Team
+    Author: Javad Joudi
+    Date: 2025-12-28
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+    
+    This rule allows all employees to see public calendar events
+    (including public holidays synced from Nager.Date).
+-->
+<odoo>
+    <!-- 
+        Record Rule: Allow reading public calendar events for all users.
+        This ensures that public holidays are visible to everyone in the Calendar.
+        
+        The existing "Own events" rule restricts visibility to attendees only,
+        but public holidays should be visible to all employees.
+    -->
+    <record id="calendar_event_public_read_rule" model="ir.rule">
+        <field name="name">Calendar: Read Public Events (All Users)</field>
+        <field name="model_id" ref="calendar.model_calendar_event"/>
+        <field name="domain_force">[('privacy', '=', 'public')]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>
+

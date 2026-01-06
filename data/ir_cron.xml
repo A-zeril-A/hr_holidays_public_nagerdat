@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2024-2025 Isalab Team
+    Author: AI Assistant <ai@isalab.com>
+    Date: 2025-12-27
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <data noupdate="1">
+        <!-- Scheduled action to sync public holidays from Nager.Date API -->
+        <record id="ir_cron_nagerdate_sync" model="ir.cron">
+            <field name="name">Public Holidays: Nager.Date Sync</field>
+            <field name="model_id" ref="model_nagerdate_settings"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_sync_all_settings()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="priority">100</field>
+        </record>
+    </data>
+</odoo>

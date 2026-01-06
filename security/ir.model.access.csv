@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_nagerdate_settings_manager,nagerdate.settings.manager,model_nagerdate_settings,base.group_system,1,1,1,1
+access_nagerdate_settings_user,nagerdate.settings.user,model_nagerdate_settings,base.group_user,1,0,0,0
+

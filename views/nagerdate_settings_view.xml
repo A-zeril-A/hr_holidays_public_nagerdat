@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2024-2025 Isalab Team
+    Author: AI Assistant <ai@isalab.com>
+    Date: 2025-12-27
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <!-- Form View -->
+    <record id="nagerdate_settings_view_form" model="ir.ui.view">
+        <field name="name">nagerdate.settings.form</field>
+        <field name="model">nagerdate.settings</field>
+        <field name="arch" type="xml">
+            <form string="Nager.Date Sync Settings">
+                <header>
+                    <button name="action_sync_now"
+                            type="object"
+                            string="Sync Now"
+                            class="btn-primary"
+                            icon="fa-refresh"/>
+                    <button name="action_test_api"
+                            type="object"
+                            string="Test API Connection"
+                            class="btn-secondary"
+                            icon="fa-plug"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="country_id" placeholder="Select Country"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Country Configuration">
+                            <field name="country_code"/>
+                            <field name="auto_sync_enabled"/>
+                            <field name="last_sync_date"/>
+                        </group>
+                        <group string="Year Range">
+                            <field name="years_back"/>
+                            <field name="years_ahead"/>
+                        </group>
+                    </group>
+                    <group string="Resource Calendar Sync">
+                        <group>
+                            <field name="sync_to_resource_calendar"/>
+                        </group>
+                        <group>
+                            <field name="resource_calendar_ids" 
+                                   widget="many2many_tags"
+                                   invisible="not sync_to_resource_calendar"
+                                   placeholder="Leave empty for global holidays"/>
+                        </group>
+                    </group>
+                    <group string="Advanced Settings" col="1">
+                        <field name="api_base_url"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Info:</strong>
+                        The sync will fetch public holidays from
+                        <a href="https://date.nager.at/" target="_blank">Nager.Date API</a>
+                        for years from <field name="years_back" readonly="1" nolabel="1"/> year(s) back
+                        to <field name="years_ahead" readonly="1" nolabel="1"/> year(s) ahead.
+                        <br/>
+                        Records synced from this API will have source marked as "Nager.Date API".
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="nagerdate_settings_view_tree" model="ir.ui.view">
+        <field name="name">nagerdate.settings.tree</field>
+        <field name="model">nagerdate.settings</field>
+        <field name="arch" type="xml">
+            <list string="Nager.Date Sync Settings">
+                <field name="country_id"/>
+                <field name="country_code"/>
+                <field name="years_back"/>
+                <field name="years_ahead"/>
+                <field name="auto_sync_enabled"/>
+                <field name="last_sync_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="nagerdate_settings_action" model="ir.actions.act_window">
+        <field name="name">Nager.Date Sync Settings</field>
+        <field name="res_model">nagerdate.settings</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure Nager.Date API sync for public holidays
+            </p>
+            <p>
+                Add countries for which you want to automatically sync
+                public holidays from the Nager.Date API.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item under Public Holidays submenu (from calendar_public_holiday module) -->
+    <menuitem id="menu_nagerdate_settings"
+              name="Nager.Date Sync"
+              parent="calendar_public_holiday.menu_calendar_public_holiday"
+              action="nagerdate_settings_action"
+              sequence="70"/>
+
+    <!-- Extend calendar.public.holiday form view to show source in holiday lines -->
+    <record id="view_calendar_public_holiday_form_inherit" model="ir.ui.view">
+        <field name="name">calendar.public.holiday.form.inherit.nagerdate</field>
+        <field name="model">calendar.public.holiday</field>
+        <field name="inherit_id" ref="calendar_public_holiday.view_calendar_public_holiday_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']//list//field[@name='variable_date']" position="after">
+                <field name="source" optional="show"/>
+                <field name="nagerdate_types" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
