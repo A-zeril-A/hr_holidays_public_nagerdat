@@ -32,6 +32,7 @@
                     </div>
                     <group>
                         <group string="Country Configuration">
+                            <field name="company_id"/>
                             <field name="country_code"/>
                             <field name="auto_sync_enabled"/>
                             <field name="last_sync_date"/>
@@ -41,14 +42,11 @@
                             <field name="years_ahead"/>
                         </group>
                     </group>
-                    <group string="Resource Calendar Sync">
-                        <group>
-                            <field name="sync_to_resource_calendar"/>
-                        </group>
+                    <group string="Working Schedule Targets">
                         <group>
                             <field name="resource_calendar_ids" 
                                    widget="many2many_tags"
-                                   invisible="not sync_to_resource_calendar"
+                                   domain="[('company_id', 'in', [company_id, False])]"
                                    placeholder="Leave empty for global holidays"/>
                         </group>
                     </group>
@@ -57,12 +55,14 @@
                     </group>
                     <div class="alert alert-info" role="alert">
                         <strong>Info:</strong>
-                        The sync will fetch public holidays from
+                        The sync fetches public holidays from
                         <a href="https://date.nager.at/" target="_blank">Nager.Date API</a>
                         for years from <field name="years_back" readonly="1" nolabel="1"/> year(s) back
                         to <field name="years_ahead" readonly="1" nolabel="1"/> year(s) ahead.
                         <br/>
-                        Records synced from this API will have source marked as "Nager.Date API".
+                        Imported records are written to the standard Odoo Public Holidays
+                        model used by Time Off and Timesheets, and mirrored to the installed
+                        OCA public holiday catalog for compatibility.
                     </div>
                 </sheet>
             </form>
@@ -75,6 +75,7 @@
         <field name="model">nagerdate.settings</field>
         <field name="arch" type="xml">
             <list string="Nager.Date Sync Settings">
+                <field name="company_id"/>
                 <field name="country_id"/>
                 <field name="country_code"/>
                 <field name="years_back"/>
@@ -101,10 +102,11 @@
         </field>
     </record>
 
-    <!-- Menu Item under Public Holidays submenu (from calendar_public_holiday module) -->
+    <!-- Menu Item under the standard Time Off configuration menu -->
     <menuitem id="menu_nagerdate_settings"
               name="Nager.Date Sync"
-              parent="calendar_public_holiday.menu_calendar_public_holiday"
+              parent="hr_holidays.menu_hr_holidays_configuration"
+              groups="hr_holidays.group_hr_holidays_manager"
               action="nagerdate_settings_action"
               sequence="70"/>
 

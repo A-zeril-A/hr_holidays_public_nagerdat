@@ -3,14 +3,16 @@
 # Date: 2025-12-27
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import Command, fields, models
 
 
 class CalendarPublicHolidayLine(models.Model):
     """
-    Extends calendar.public.holiday.line to:
-    1. Add source tracking field for Nager.Date synced holidays
-    2. Override calendar event creation to make holidays visible to all users
+    Extend the OCA public holiday line with Nager.Date metadata.
+
+    The linked calendar.event is intentionally kept as a neutral side effect of
+    calendar_public_holiday. Standard employee visibility is handled in Time Off
+    through resource.calendar.leaves, not through the Calendar app.
     """
     _inherit = "calendar.public.holiday.line"
 
@@ -34,27 +36,20 @@ class CalendarPublicHolidayLine(models.Model):
 
     def _prepare_holidays_meeting_values(self):
         """
-        Override to set public visibility for calendar events.
-        
-        Changes from original OCA implementation:
-        - privacy: 'public' instead of 'confidential' (allows record rule access)
-        - show_as: 'free' instead of 'busy' (holidays don't block calendar time)
-        
-        We keep the original user_id and partner_ids (attendees) so that:
-        1. Events appear in Admin's calendar (who is the default attendee)
-        2. Other users can add Admin to their calendar filters to see holidays
-        
-        Author: Javad Joudi
-        Date: 2025-12-28
+        Keep generated calendar events neutral.
+
+        The OCA stack still creates calendar.event records for public holiday
+        lines. We clear the organizer/attendees so these technical events do not
+        leak into personal calendars or Outlook synchronization.
         """
-        # Call parent to get base values
         vals = super()._prepare_holidays_meeting_values()
-        
-        # Only override privacy and show_as, keep attendees intact
-        vals.update({
-            "privacy": "public",      # Everyone can READ (via record rule)
-            "show_as": "free",        # Don't block calendar time slots
-        })
-        
+        vals.update(
+            {
+                "user_id": False,
+                "partner_ids": [Command.set([])],
+                "privacy": "confidential",
+                "show_as": "free",
+            }
+        )
         return vals
 
